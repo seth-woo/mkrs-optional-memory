@@ -1,7 +1,28 @@
 {
     "cSpell.words": [
+        "anyio",
+        "certifi",
+        "colorama",
         "dotenv",
+        "fastapi",
+        "filelock",
+        "fsspec",
+        "huggingface",
+        "idna",
         "MKRS",
-        "Qwen"
+        "mpmath",
+        "networkx",
+        "numpy",
+        "psutil",
+        "pydantic",
+        "Qwen",
+        "safetensors",
+        "setuptools",
+        "starlette",
+        "sympy",
+        "torchvision",
+        "tqdm",
+        "urllib",
+        "uvicorn"
     ]
 }
