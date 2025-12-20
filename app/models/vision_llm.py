@@ -24,6 +24,14 @@ model = AutoModelForVision2Seq.from_pretrained(
 model.eval()
 logger.info("VLM loaded successfully")
 
+def extract_assistant_answer(text: str) -> str:
+    """
+    Extract only the assistant's final answer from a chat-formatted output.
+    Works for Qwen and other chat-style VLMs.
+    """
+    if "assistant" in text:
+        return text.split("assistant")[-1].strip()
+    return text.strip()
 
 def answer_image_question(image, question: str) -> str:
     messages = [
@@ -60,5 +68,7 @@ def answer_image_question(image, question: str) -> str:
         output_ids,
         skip_special_tokens=True
     )[0]
+    
+    final_answer = extract_assistant_answer(response)
 
-    return response.strip()
+    return final_answer

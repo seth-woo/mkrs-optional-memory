@@ -7,14 +7,16 @@ from app.core.logging import setup_logger
 router = APIRouter()
 logger = setup_logger("single_qa")
 
-
 @router.post("/single", response_model=SingleQAResponse)
 async def single_image_qa(
-    image: UploadFile = File(...),
+    images: list[UploadFile] = File(...),
     question: str = Form(...)
 ):
+    if not images:
+        raise HTTPException(status_code=400, detail="No image uploaded")
+
     try:
-        img = Image.open(image.file).convert("RGB")
+        img = Image.open(images[0].file).convert("RGB")
     except Exception as e:
         logger.error(f"Failed to load image: {e}")
         raise HTTPException(status_code=400, detail="Invalid image file")
