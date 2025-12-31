@@ -4,6 +4,7 @@
         "certifi",
         "colorama",
         "dotenv",
+        "embedder",
         "fastapi",
         "filelock",
         "fsspec",
