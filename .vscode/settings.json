@@ -15,6 +15,7 @@
         "numpy",
         "psutil",
         "pydantic",
+        "qdrant",
         "Qwen",
         "safetensors",
         "setuptools",
