@@ -26,7 +26,12 @@ class Settings:
     QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
     QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "mkrs_memory")
 
-    # Temporary placeholder — will finalize once embedder is chosen
+    # --------------------
+    # Embeddings
+    # --------------------
     EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", 768))
+
+    TEXT_VECTOR_NAME = "text"
+    IMAGE_VECTOR_NAME = "image"
 
 settings = Settings()
