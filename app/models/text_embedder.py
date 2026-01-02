@@ -1,6 +1,5 @@
 import torch
 from sentence_transformers import SentenceTransformer
-from app.core.config import settings
 import logging
 
 logger = logging.getLogger(__name__)
