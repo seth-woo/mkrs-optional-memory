@@ -10,7 +10,41 @@ const outputBox = document.getElementById("output-box");
 const submitBtn = document.getElementById("submitBtn");
 const resetBtn = document.getElementById("resetBtn");
 
+// NEW
+const saveMemoryToggle = document.getElementById("saveMemoryToggle");
+const memoryCountEl = document.getElementById("memoryCount");
+
+// -----------------------------
+// Helpers
+// -----------------------------
+async function refreshMemoryCount() {
+    try {
+        const res = await fetch("/memory/count");
+        const data = await res.json();
+        memoryCountEl.textContent = `Memory: ${data.count}`;
+    } catch {
+        memoryCountEl.textContent = "Memory: ?";
+    }
+}
+
+async function clearMemory() {
+    if (!confirm("Clear all stored memory?")) return;
+
+    try {
+        await fetch("/memory/clear", { method: "POST" });
+        await refreshMemoryCount();
+        alert("Memory cleared.");
+    } catch {
+        alert("Failed to clear memory.");
+    }
+}
+
+// expose to global (for index.html button)
+window.clearMemory = clearMemory;
+
+// -----------------------------
 // Image upload handler
+// -----------------------------
 imageInput.addEventListener("change", () => {
     uploadedImages = Array.from(imageInput.files);
     previewBox.innerHTML = "";
@@ -26,12 +60,15 @@ imageInput.addEventListener("change", () => {
     }
 });
 
+// -----------------------------
 // Submit prompt
+// -----------------------------
 submitBtn.addEventListener("click", async () => {
     const prompt = promptInput.value.trim();
+    const saveToMemory = saveMemoryToggle.checked;
 
     if (!prompt || uploadedImages.length === 0) {
-        alert("Please upload image(s) and enter a prompt.");
+        alert("Please upload an image and enter a prompt.");
         return;
     }
 
@@ -40,12 +77,10 @@ submitBtn.addEventListener("click", async () => {
 
     const formData = new FormData();
 
-    // Mode 1: backend uses first image
-    uploadedImages.forEach(img => {
-        formData.append("images", img);
-    });
-
+    // Mode 1: backend uses first image only
+    formData.append("images", uploadedImages[0]);
     formData.append("question", prompt);
+    formData.append("save_to_memory", saveToMemory);
 
     try {
         const res = await fetch("/qa/single", {
@@ -55,12 +90,18 @@ submitBtn.addEventListener("click", async () => {
 
         const data = await res.json();
         outputBox.textContent = data.answer ?? JSON.stringify(data, null, 2);
+
+        if (saveToMemory) {
+            await refreshMemoryCount();
+        }
     } catch (err) {
         outputBox.textContent = "Error: " + err;
     }
 });
 
+// -----------------------------
 // Reset
+// -----------------------------
 resetBtn.addEventListener("click", () => {
     imageInput.value = "";
     promptInput.value = "";
@@ -71,3 +112,8 @@ resetBtn.addEventListener("click", () => {
 
     previewBox.innerHTML = '<span id="preview-placeholder">Image preview</span>';
 });
+
+// -----------------------------
+// Initial load
+// -----------------------------
+refreshMemoryCount();

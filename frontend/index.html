@@ -34,7 +34,19 @@
         <span class="status" id="imageStatus"></span>
     </div>
 
-    <!-- 3) Prompt input -->
+    <!-- 3) Memory controls -->
+    <div class="section memory-row">
+        <label>
+            <input type="checkbox" id="saveMemoryToggle" />
+            Save to Memory
+        </label>
+
+        <span id="memoryCount">Memory: 0</span>
+
+        <button onclick="clearMemory()">Clear Memory</button>
+    </div>
+
+    <!-- 4) Prompt input -->
     <div class="section prompt-row">
         <textarea
         id="promptInput"
@@ -44,12 +56,12 @@
         <span class="status" id="promptStatus"></span>
     </div>
 
-    <!-- 4) Output -->
+    <!-- 5) Output -->
     <div class="section">
         <div id="output-box">VLM Output</div>
     </div>
 
-    <!-- 5) Reset -->
+    <!-- 6) Reset -->
     <div class="section">
         <button id="resetBtn">Reset</button>
     </div>

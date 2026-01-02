@@ -101,3 +101,18 @@ textarea::placeholder {
     font-family: monospace;
     color: #eaeaea;
 }
+
+.memory-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.memory-row label {
+    cursor: pointer;
+}
+
+#memoryCount {
+    font-size: 13px;
+    opacity: 0.85;
+}
