@@ -43,7 +43,7 @@ async def single_image_qa(
     if save_to_memory:
         try:
             image_embedding = image_embedder.embed(img)
-            text_embedding = text_embedder(f"Q: {question}\nA: {answer}")
+            text_embedding = text_embedder.embed(f"Q: {question}\nA: {answer}")
 
             payload = {
                 "question": question,
