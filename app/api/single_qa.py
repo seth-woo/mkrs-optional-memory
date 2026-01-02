@@ -1,8 +1,8 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from PIL import Image
 from app.models.vision_llm import answer_image_question
-from app.models.text_embedder import embed_text
-from app.models.image_embedder import embed_image
+from app.models.text_embedder import text_embedder
+from app.models.image_embedder import image_embedder
 from app.storage.qdrant_store import qdrant_store
 from app.schemas.responses import SingleQAResponse
 from app.core.logging import setup_logger
@@ -42,8 +42,8 @@ async def single_image_qa(
     # ---------------------------
     if save_to_memory:
         try:
-            image_embedding = embed_image(img)
-            text_embedding = embed_text(f"Q: {question}\nA: {answer}")
+            image_embedding = image_embedder(img)
+            text_embedding = text_embedder(f"Q: {question}\nA: {answer}")
 
             payload = {
                 "question": question,
