@@ -67,7 +67,7 @@ class QdrantStore:
 
         point = PointStruct(
             id=str(uuid.uuid4()),
-            vector=vectors,
+            vectors=vectors,
             payload=payload,
         )
 
