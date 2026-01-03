@@ -15,7 +15,8 @@ class QdrantStore:
     def __init__(self):
         self.client = QdrantClient(url=settings.QDRANT_URL)
         self.collection_name = settings.QDRANT_COLLECTION
-        self.vector_size = settings.EMBEDDING_DIM
+        self.text_vector_size = settings.TEXT_EMBEDDING_DIM
+        self.image_vector_size = settings.IMAGE_EMBEDDING_DIM
 
         self._ensure_collection()
 
@@ -34,11 +35,11 @@ class QdrantStore:
                 collection_name=self.collection_name,
                 vectors_config={
                     settings.TEXT_VECTOR_NAME: VectorParams(
-                        size=settings.TEXT_EMBEDDING_DIM,
+                        size=self.text_vector_size,
                         distance=Distance.COSINE,
                     ),
                     settings.IMAGE_VECTOR_NAME: VectorParams(
-                        size=settings.IMAGE_EMBEDDING_DIM,
+                        size=self.image_vector_size,
                         distance=Distance.COSINE,
                     ),
                 },
