@@ -1,8 +1,7 @@
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import (
     VectorParams,
-    Distance,
-    PointStruct,
+    Distance
 )
 from app.core.config import settings
 import uuid
@@ -65,11 +64,20 @@ class QdrantStore:
         if image_embedding is not None:
             vectors[settings.IMAGE_VECTOR_NAME] = image_embedding
 
-        point = PointStruct(
-            id=str(uuid.uuid4()),
-            vectors=vectors,
-            payload=payload,
-        )
+        # point = PointStruct(
+        #     id=str(uuid.uuid4()),
+        #     vector=vectors,
+        #     payload=payload,
+        # )
+        
+        print(vectors)
+        quit()
+        
+        point = {
+            "id": str(uuid.uuid4()),
+            "vector": vectors,
+            "payload": payload,
+        }
 
         self.client.upsert(
             collection_name=self.collection_name,
