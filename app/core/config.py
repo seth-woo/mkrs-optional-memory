@@ -31,7 +31,7 @@ class Settings:
     # --------------------
     # EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", 768))
     
-    TEXT_EMBEDDING_DIM = 768
+    TEXT_EMBEDDING_DIM = 384
     IMAGE_EMBEDDING_DIM = 512
 
     TEXT_VECTOR_NAME = "text"
