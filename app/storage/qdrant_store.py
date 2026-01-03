@@ -70,9 +70,6 @@ class QdrantStore:
         #     payload=payload,
         # )
         
-        print(vectors)
-        quit()
-        
         point = {
             "id": str(uuid.uuid4()),
             "vector": vectors,
