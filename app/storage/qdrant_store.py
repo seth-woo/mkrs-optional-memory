@@ -34,11 +34,11 @@ class QdrantStore:
                 collection_name=self.collection_name,
                 vectors_config={
                     settings.TEXT_VECTOR_NAME: VectorParams(
-                        size=self.vector_size,
+                        size=settings.TEXT_EMBEDDING_DIM,
                         distance=Distance.COSINE,
                     ),
                     settings.IMAGE_VECTOR_NAME: VectorParams(
-                        size=self.vector_size,
+                        size=settings.IMAGE_EMBEDDING_DIM,
                         distance=Distance.COSINE,
                     ),
                 },
