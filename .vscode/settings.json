@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "anyio",
+        "ASGI",
         "certifi",
         "colorama",
         "dotenv",
@@ -23,6 +24,7 @@
         "langsmith",
         "MKRS",
         "mpmath",
+        "Multimodal",
         "networkx",
         "numpy",
         "orjson",
