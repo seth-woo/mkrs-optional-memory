@@ -1,5 +1,7 @@
 # MKRS (Multimodal Knowledge Retrieval System)
 
+![mkrs](https://github.com/user-attachments/assets/1bb9f7d7-190a-489e-a7aa-22feb2f12cd3)
+
 MKRS is a multimodal AI application for image-based question answering with optional persistent memory.
 
 It combines:
