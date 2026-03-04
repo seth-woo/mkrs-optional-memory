@@ -36,5 +36,6 @@ class Settings:
 
     TEXT_VECTOR_NAME = "text"
     IMAGE_VECTOR_NAME = "image"
+    RAG_TOP_K = int(os.getenv("RAG_TOP_K", 5))
 
 settings = Settings()

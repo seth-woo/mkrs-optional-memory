@@ -1,4 +1,5 @@
 let uploadedImages = [];
+let currentMemoryCount = 0;
 
 // DOM references
 const imageInput = document.getElementById("imageInput");
@@ -21,8 +22,10 @@ async function refreshMemoryCount() {
     try {
         const res = await fetch("/memory/count");
         const data = await res.json();
+        currentMemoryCount = data.count ?? 0;
         memoryCountEl.textContent = `Memory: ${data.count}`;
     } catch {
+        currentMemoryCount = 0;
         memoryCountEl.textContent = "Memory: ?";
     }
 }
@@ -82,8 +85,17 @@ submitBtn.addEventListener("click", async () => {
     formData.append("question", prompt);
     formData.append("save_to_memory", saveToMemory);
 
+    // Refresh memory count before routing to avoid stale client state.
+    await refreshMemoryCount();
+
+    // Routing policy:
+    // - memory == 0 -> single_qa (state-less baseline)
+    // - memory >= 1 -> multi_qa (RAG mode), regardless of save toggle
+    const endpoint = currentMemoryCount >= 1 ? "/qa/multi" : "/qa/single";
+    promptStatus.textContent = `Prompt submitted successfully. (${endpoint})`;
+
     try {
-        const res = await fetch("/qa/single", {
+        const res = await fetch(endpoint, {
             method: "POST",
             body: formData
         });

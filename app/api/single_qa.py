@@ -30,7 +30,7 @@ async def single_image_qa(
         raise HTTPException(status_code=400, detail="Invalid image file")
 
     logger.info(f"Received question: {question}")
-    logger.info(f"Save to memory: {save_to_memory}")
+    logger.info(f"Save to Memory: {save_to_memory}")
 
     # ---------------------------
     # VLM inference
@@ -42,8 +42,8 @@ async def single_image_qa(
     # ---------------------------
     if save_to_memory:
         try:
-            image_embedding = image_embedder.embed(img)
-            text_embedding = text_embedder.embed(f"Q: {question}\nA: {answer}")
+            image_embedding = image_embedder.embed([img])[0]
+            text_embedding = text_embedder.embed([f"Q: {question}\nA: {answer}"])[0]
 
             payload = {
                 "question": question,

@@ -50,6 +50,16 @@ class QdrantStore:
     # Write
     # ---------------------------
 
+    @staticmethod
+    def _normalize_vector(vector: list[float] | list[list[float]] | None):
+        if vector is None:
+            return None
+        if vector and isinstance(vector[0], list):
+            if len(vector) == 1:
+                return vector[0]
+            raise ValueError("Expected a single vector, but received a multi-vector input.")
+        return vector
+
     def upsert_memory(
         self,
         text_embedding: list[float] | None,
@@ -57,6 +67,8 @@ class QdrantStore:
         payload: dict,
     ):
         vectors = {}
+        text_embedding = self._normalize_vector(text_embedding)
+        image_embedding = self._normalize_vector(image_embedding)
 
         if text_embedding is not None:
             vectors[settings.TEXT_VECTOR_NAME] = text_embedding
@@ -98,6 +110,33 @@ class QdrantStore:
             query_vector=(settings.IMAGE_VECTOR_NAME, query_embedding),
             limit=top_k,
         )
+
+    def search_hybrid(
+        self,
+        text_query_embedding: list[float],
+        image_query_embedding: list[float],
+        top_k: int = 3,
+    ):
+        text_hits = self.search_text(text_query_embedding, top_k=top_k)
+        image_hits = self.search_image(image_query_embedding, top_k=top_k)
+
+        combined = {}
+        for hit in text_hits + image_hits:
+            key = str(hit.id)
+            if key not in combined or hit.score > combined[key].score:
+                combined[key] = hit
+
+        ranked = sorted(combined.values(), key=lambda x: x.score, reverse=True)
+        return ranked[:top_k]
+
+    def list_memories(self, limit: int = 50):
+        points, _ = self.client.scroll(
+            collection_name=self.collection_name,
+            limit=limit,
+            with_payload=True,
+            with_vectors=False,
+        )
+        return points
 
     # ---------------------------
     # Maintenance
