@@ -85,20 +85,24 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    U[Upload Image + Prompt] --> S[POST /qa/single]
+    T[Toggle Save to Memory] --> U1[Upload Image]
+    U1 --> U2[Enter Prompt]
+    U2 --> S[POST /qa/single with save_to_memory flag]
     S --> V[VLM Inference on Current Image]
     V --> R[Return Answer]
-    S --> T{Save to Memory?}
-    T -- Yes --> EM[Generate Text + Image Embeddings]
+    S --> D{Save to Memory Enabled?}
+    D -- Yes --> EM[Generate Text + Image Embeddings]
     EM --> Q[Upsert into Qdrant]
-    T -- No --> X[Skip Persistence]
+    D -- No --> X[Skip Persistence]
 ```
 
 ### Mode 2 Flow (`/qa/multi`)
 
 ```mermaid
 flowchart TD
-    U[Upload Image + Prompt] --> M[POST /qa/multi]
+    T[Toggle Save to Memory] --> U1[Upload Image]
+    U1 --> U2[Enter Prompt]
+    U2 --> M[POST /qa/multi with save_to_memory flag]
     M --> C[Read Memory Count]
     C --> H{Memory >= 1?}
     H -- No --> V1[Falls back to direct VLM answer]
@@ -108,9 +112,10 @@ flowchart TD
     L --> V2[VLM Inference on Current Image + Memory Context]
     V2 --> G[Deterministic Color-Match Guardrail]
     G --> O[Return Memory-Grounded Answer]
-    O --> S{Save to Memory?}
-    S -- Yes --> Q[Persist mode2 QA in Qdrant]
-    S -- No --> Z[Complete]
+    O --> D{Save to Memory Enabled?}
+    D -- Yes --> Q[Generate Text + Image Embeddings]
+    Q --> EM[Upsert into Qdrant]
+    D -- No --> Z[Skip Persistence]
 ```
 
 ---
@@ -162,24 +167,52 @@ Notes:
 ## Project Structure
 
 ```text
-app/
-  api/
-    single_qa.py        # Mode 1 endpoint
-    multi_qa.py         # Mode 2 endpoint (RAG + guardrail)
-    memory.py           # Memory count/clear endpoints
-  models/
-    vision_llm.py       # VLM loading + inference
-    text_embedder.py    # Text embeddings
-    image_embedder.py   # Image embeddings
-  storage/
-    qdrant_store.py     # Qdrant collection, upsert, retrieval
-  core/
-    config.py           # Settings and dimensions
-frontend/
-  index.html            # UI
-  app.js                # Mode routing + API calls
-docker/
-  qdrant.yaml           # Qdrant container definition
+.
+|-- LICENSE
+|-- README.md
+|-- requirements.txt
+|-- .vscode/
+|   `-- settings.json
+|-- app/
+|   |-- main.py
+|   |-- api/
+|   |   |-- memory.py
+|   |   |-- multi_qa.py
+|   |   |-- single_qa.py
+|   |   `-- __pycache__/
+|   |       |-- memory.cpython-311.pyc
+|   |       |-- multi_qa.cpython-311.pyc
+|   |       `-- single_qa.cpython-311.pyc
+|   |-- core/
+|   |   |-- config.py
+|   |   |-- logging.py
+|   |   `-- __pycache__/
+|   |       |-- config.cpython-311.pyc
+|   |       `-- logging.cpython-311.pyc
+|   |-- models/
+|   |   |-- image_embedder.py
+|   |   |-- text_embedder.py
+|   |   |-- vision_llm.py
+|   |   `-- __pycache__/
+|   |       |-- image_embedder.cpython-311.pyc
+|   |       |-- text_embedder.cpython-311.pyc
+|   |       `-- vision_llm.cpython-311.pyc
+|   |-- schemas/
+|   |   |-- responses.py
+|   |   `-- __pycache__/
+|   |       `-- responses.cpython-311.pyc
+|   |-- storage/
+|   |   |-- qdrant_store.py
+|   |   `-- __pycache__/
+|   |       `-- qdrant_store.cpython-311.pyc
+|   `-- __pycache__/
+|       `-- main.cpython-311.pyc
+|-- docker/
+|   `-- qdrant.yaml
+`-- frontend/
+    |-- app.js
+    |-- index.html
+    `-- styles.css
 ```
 
 ---
@@ -241,21 +274,25 @@ uvicorn app.main:app --reload
 ### Mode 1 Example
 
 1. Ensure memory is empty (`Memory: 0`).
-2. Upload one image.
-3. Ask a question.
-4. Toggle `Save to Memory` as needed.
+2. Decide whether to enable `Save to Memory` before submission.
+3. Upload one image.
+4. Enter a question/prompt.
 5. Observe:
    - Stateless answer from current image.
-   - Optional persistence into Qdrant.
+   - If `Save to Memory` was enabled, current image QA is persisted into Qdrant.
 
 Mode 1 supports OCR and non-OCR use cases, because the VLM reasons directly over visible content and scene semantics in the single uploaded image.
 
 ### Mode 2 Example
 
 1. Create memory by saving one or more prior QA results.
-2. Upload a new image and ask a collection-based question.
-3. MKRS retrieves memory records and builds a RAG prompt.
-4. For fruit color-comparison prompts, Mode 2 uses specialized enforcement to improve answer consistency.
+2. Ensure memory now shows `>= 1` records.
+3. Decide whether to enable `Save to Memory` for this new Mode 2 query.
+4. Upload a new image.
+5. Enter a collection-based question.
+6. MKRS retrieves memory records and builds a RAG prompt.
+7. For fruit color-comparison prompts, Mode 2 applies specialized post-check logic to improve cross-collection color-match consistency.
+8. If `Save to Memory` is enabled, the new Mode 2 QA result is also persisted.
 
 ---
 
@@ -297,3 +334,5 @@ Key settings from `app/core/config.py`:
 ## License
 
 This repository is licensed under the [MIT License](LICENSE.md).
+
+[^F]: Hello World
