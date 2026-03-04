@@ -335,4 +335,4 @@ Key settings from `app/core/config.py`:
 
 This repository is licensed under the [MIT License](LICENSE).
 
-[^F]: Future work will look into adding a separate toggle to allow for routing to another specialized RAG pipeline for VLM-based OCR use cases (and by extension, more varied use cases) for Mode 2 but this will suffice for now. At the moment, only stateless Mode 1 supports OCR on natural language from images.
+[^calendar-note]]: Future work will look into adding a separate toggle to allow for routing to another specialized RAG pipeline for VLM-based OCR use cases (and by extension, more varied use cases) for Mode 2 but this will suffice for now. At the moment, only stateless Mode 1 supports OCR on natural language from images.
