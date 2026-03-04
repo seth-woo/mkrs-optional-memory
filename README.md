@@ -325,7 +325,7 @@ Key settings from `app/core/config.py`:
 
 ## Current Scope and Limitations
 
-- Mode 2 is intentionally specialized for fruit-color comparison questions.
+- Mode 2 is intentionally specialized for fruit-color comparison questions.[^calendar-note]
 - Memory extraction logic relies on patterns present in stored QA text.
 - Qdrant image tag is currently floating (`latest`), which may change behavior over time.
 
