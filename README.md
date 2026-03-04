@@ -3,11 +3,13 @@
 MKRS is a multimodal AI application for image-based question answering with optional persistent memory.
 
 It combines:
+
 - A vision-language model (VLM) for reasoning over uploaded images.
 - A vector database (Qdrant) for storing memory as multimodal embeddings.
 - A retrieval-augmented mode that uses stored context for cross-image reasoning.
 
 MKRS currently supports two operational modes:
+
 - Mode 1 (`single_qa`): stateless reasoning on one current image (with optional save-to-memory).
 - Mode 2 (`multi_qa`): memory-aware reasoning that uses records already stored in Qdrant.
 
@@ -16,11 +18,13 @@ MKRS currently supports two operational modes:
 ## What MKRS Solves
 
 MKRS is designed for scenarios where a user wants:
+
 - Immediate visual QA on a newly uploaded image.
 - Optional persistence of question-answer context for future reuse.
 - Follow-up questions that depend on both the current image and historical memory records.
 
 In practical terms:
+
 - Mode 1 handles direct single-image understanding, including OCR and non-OCR prompts.
 - Mode 2 handles collection-aware reasoning by grounding generation in stored memory context.
 
@@ -29,6 +33,7 @@ In practical terms:
 ## Feature Summary
 
 ### Mode 1: Single Image QA (Stateless + Optional Memory Save)
+
 - Accepts an uploaded image and question.
 - Runs VLM inference on the current image only.
 - Returns an answer immediately.
@@ -41,15 +46,18 @@ In practical terms:
   - image embedding (`512-dim`)
 
 ### Mode 2: Multi Image QA (RAG over Stored Collection)
+
 - Activated when memory records exist (`memory_count >= 1`).
 - Retrieves memory context from Qdrant and builds an augmented prompt.
 - Uses LangChain prompt templates to structure memory-grounded instructions.
 - Includes deterministic post-processing for collection color-match questions.
 
 Mode 2 phrasing for your project:
+
 > Mode 2 is a domain-specialized, memory-grounded RAG pipeline optimized for accurate fruit-color reasoning across the stored image collection.
 
 This means Mode 2 is currently tuned for prompts like:
+
 - “Is there another fruit in the collection with the same color?”
 - “Which prior fruit matches the current fruit color?”
 
@@ -60,9 +68,9 @@ This means Mode 2 is currently tuned for prompts like:
 ```mermaid
 flowchart LR
     A[Frontend UI] --> B[FastAPI]
-    B --> C[VLM: Qwen2.5-VL-3B]
-    B --> D[Text Embedder: all-MiniLM-L6-v2]
-    B --> E[Image Embedder: CLIP ViT-B/32]
+    B --> C[VLM: Qwen/Qwen2.5-VL-3B-Instruct]
+    B --> D[Text Embedder: sentence-transformers/all-MiniLM-L6-v2]
+    B --> E[Image Embedder: openai/clip-vit-base-patch32]
     D --> F[Qdrant]
     E --> F
     F --> B
@@ -110,11 +118,13 @@ flowchart TD
 ## Routing Policy in Current UI
 
 The frontend follows this policy:
+
 - If `memory_count == 0` -> route to `/qa/single`.
 - If `memory_count >= 1` -> route to `/qa/multi`.
 - `Save to Memory` controls persistence behavior, not mode selection once memory exists.
 
 Expected logging behavior:
+
 - `memory_count == 0`, save checked -> `single_qa` logs with `Save to Memory: True`.
 - `memory_count == 0`, save unchecked -> `single_qa` logs with `Save to Memory: False`.
 - `memory_count >= 1`, save checked -> `multi_qa` logs with `Save to Memory: True` and memory record count.
@@ -126,23 +136,24 @@ Expected logging behavior:
 
 Versions are based on this repository’s pinned dependencies (`requirements.txt`) and Docker config.
 
-| Tool | Version | Purpose in MKRS |
-|---|---|---|
-| Python | 3.11+ (recommended) | Runtime for FastAPI app and model stack |
-| FastAPI | `0.125.0` | API framework for `/qa/*` and `/memory/*` endpoints |
-| Uvicorn | `0.38.0` | ASGI server for local development/runtime |
-| Qdrant Client | `1.16.2` | Python SDK for creating collections, upsert, search, scroll |
-| Qdrant Server | `qdrant/qdrant:latest` | Self-hosted vector database for multimodal memory |
-| LangChain | `1.2.10` | Prompt orchestration for Mode 2 RAG flow |
-| LangChain Core | `1.2.17` | Core prompt primitives (`ChatPromptTemplate`) |
-| Transformers | `4.57.3` | VLM and model inference pipeline |
-| Torch | `2.9.1+cu128` | Tensor compute backend (GPU/CPU) |
-| Sentence Transformers | `5.2.0` | Text embedding model execution |
-| Pillow | `12.0.0` | Image loading and preprocessing |
-| Docker Engine | Host-installed | Container runtime for Qdrant |
-| Docker Compose spec | `3.8` | Service definition in `docker/qdrant.yaml` |
+| Tool                  | Version                  | Purpose in MKRS                                             |
+| --------------------- | ------------------------ | ----------------------------------------------------------- |
+| Python                | 3.11+ (recommended)      | Runtime for FastAPI app and model stack                     |
+| FastAPI               | `0.125.0`              | API framework for `/qa/*` and `/memory/*` endpoints     |
+| Uvicorn               | `0.38.0`               | ASGI server for local development/runtime                   |
+| Qdrant Client         | `1.16.2`               | Python SDK for creating collections, upsert, search, scroll |
+| Qdrant Server         | `qdrant/qdrant:latest` | Self-hosted vector database for multimodal memory           |
+| LangChain             | `1.2.10`               | Prompt orchestration for Mode 2 RAG flow                    |
+| LangChain Core        | `1.2.17`               | Core prompt primitives (`ChatPromptTemplate`)             |
+| Transformers          | `4.57.3`               | VLM and model inference pipeline                            |
+| Torch                 | `2.9.1+cu128`          | Tensor compute backend (GPU/CPU)                            |
+| Sentence Transformers | `5.2.0`                | Text embedding model execution                              |
+| Pillow                | `12.0.0`               | Image loading and preprocessing                             |
+| Docker Engine         | Host-installed           | Container runtime for Qdrant                                |
+| Docker Compose spec   | `3.8`                  | Service definition in `docker/qdrant.yaml`                |
 
 Notes:
+
 - Qdrant is currently configured with `latest`, which is a floating tag.
 - For reproducibility in production, pin to a fixed Qdrant version tag.
 
@@ -228,6 +239,7 @@ uvicorn app.main:app --reload
 ## Usage Walkthrough
 
 ### Mode 1 Example
+
 1. Ensure memory is empty (`Memory: 0`).
 2. Upload one image.
 3. Ask a question.
@@ -239,6 +251,7 @@ uvicorn app.main:app --reload
 Mode 1 supports OCR and non-OCR use cases, because the VLM reasons directly over visible content and scene semantics in the single uploaded image.
 
 ### Mode 2 Example
+
 1. Create memory by saving one or more prior QA results.
 2. Upload a new image and ask a collection-based question.
 3. MKRS retrieves memory records and builds a RAG prompt.
@@ -248,19 +261,20 @@ Mode 1 supports OCR and non-OCR use cases, because the VLM reasons directly over
 
 ## API Endpoints
 
-| Endpoint | Method | Purpose |
-|---|---|---|
-| `/qa/single` | `POST` | Mode 1 single-image QA |
-| `/qa/multi` | `POST` | Mode 2 memory-grounded QA |
-| `/memory/count` | `GET` | Return number of points in Qdrant |
+| Endpoint          | Method   | Purpose                               |
+| ----------------- | -------- | ------------------------------------- |
+| `/qa/single`    | `POST` | Mode 1 single-image QA                |
+| `/qa/multi`     | `POST` | Mode 2 memory-grounded QA             |
+| `/memory/count` | `GET`  | Return number of points in Qdrant     |
 | `/memory/clear` | `POST` | Delete and recreate memory collection |
-| `/health` | `GET` | Service health status |
+| `/health`       | `GET`  | Service health status                 |
 
 ---
 
 ## Configuration
 
 Key settings from `app/core/config.py`:
+
 - `MODEL_NAME=Qwen/Qwen2.5-VL-3B-Instruct`
 - `QDRANT_URL=http://localhost:6333`
 - `QDRANT_COLLECTION=mkrs_memory`
