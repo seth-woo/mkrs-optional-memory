@@ -10,7 +10,7 @@ It combines:
 
 - A vision-language model (VLM) for reasoning over uploaded images.
 - A vector database (Qdrant) for storing memory as multimodal embeddings.
-- A retrieval-augmented mode that uses stored context for cross-image reasoning.
+- A retrieval-augmented mode (Mode 2) that uses stored context for cross-image reasoning.
 
 MKRS currently supports two operational modes:
 
